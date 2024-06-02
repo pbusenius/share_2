@@ -65,12 +65,11 @@ WORKDIR /handler
 ARG NUCLIO_GO_PROXY=${NUCLIO_GO_PROXY}
 ENV GOPROXY $NUCLIO_GO_PROXY
 
-# Specify goproxy as docker build arg
-ONBUILD ARG GOPROXY=direct
-ONBUILD ARG GOSUMDB=sum.golang.org
-
 # Specify the directory where the handler is kept. By default it is the context dir, but it is overridable
 ONBUILD ARG NUCLIO_BUILD_LOCAL_HANDLER_DIR=.
+
+ONBUILD ARG PROXY=direct
+ONBUILD ENV GOPROXY $PROXY
 
 # Copy handler sources to container, build-handler will move it to the right place
 ONBUILD COPY ${NUCLIO_BUILD_LOCAL_HANDLER_DIR} ./
