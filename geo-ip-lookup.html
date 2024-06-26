@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-IP Lookup</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Icons (optional) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-2xl p-8 bg-white shadow-2xl rounded-xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Geo-IP Lookup</h1>
+        <form id="lookup-form" class="relative mb-6">
+            <input type="text" id="ip-input" class="w-full p-3 pl-12 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Gib eine IP-Adresse ein...">
+            <button type="button" id="search-button" class="absolute left-3 top-0 bottom-0 my-auto text-gray-500">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+        <div id="results" class="">
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 border-b text-left text-gray-600 font-semibold">IP-Adresse</th>
+                        <th class="px-4 py-2 border-b text-left text-gray-600 font-semibold">Land</th>
+                        <th class="px-4 py-2 border-b text-left text-gray-600 font-semibold">Stadt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="ip-address" class="px-4 py-2 border-b text-gray-900"></td>
+                        <td id="country" class="px-4 py-2 border-b text-gray-900"></td>
+                        <td id="city" class="px-4 py-2 border-b text-gray-900"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="flex justify-end mt-4">
+                <button id="copy-button" class="px-4 py-2 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                    In die Zwischenablage kopieren
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript zur Integration der Geo-IP Lookup-Funktion und des Copy-Buttons -->
+    <script>
+        document.getElementById('search-button').addEventListener('click', async () => {
+            const ipInput = document.getElementById('ip-input').value.trim();
+            const resultsContainer = document.getElementById('results');
+            const ipAddress = document.getElementById('ip-address');
+            const country = document.getElementById('country');
+            const city = document.getElementById('city');
+
+            if (!ipInput) {
+                alert('Bitte geben Sie eine gültige IP-Adresse ein.');
+                return;
+            }
+
+            // Geo-IP Lookup-Funktion
+            try {
+                const response = await fetch(`https://api.ipgeolocation.io/ipgeo?apiKey=YOUR_API_KEY&ip=${ipInput}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    ipAddress.textContent = data.ip || 'N/A';
+                    country.textContent = data.country_name || 'N/A';
+                    city.textContent = data.city || 'N/A';
+
+                    resultsContainer.classList.remove('hidden');
+                } else {
+                    alert('Fehler bei der Abfrage der IP-Informationen');
+                }
+            } catch (error) {
+                console.error('Fehler:', error);
+                alert('Fehler bei der Abfrage der IP-Informationen');
+            }
+        });
+
+        // Kopieren der Ergebnisse in die Zwischenablage
+        document.getElementById('copy-button').addEventListener('click', () => {
+            const ipAddress = document.getElementById('ip-address').textContent;
+            const country = document.getElementById('country').textContent;
+            const city = document.getElementById('city').textContent;
+
+            const textToCopy = `IP-Adresse: ${ipAddress}\nLand: ${country}\nStadt: ${city}`;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    alert('Ergebnisse in die Zwischenablage kopiert.');
+                })
+                .catch(err => {
+                    console.error('Fehler beim Kopieren:', err);
+                    alert('Fehler beim Kopieren der Ergebnisse.');
+                });
+        });
+    </script>
+</body>
+</html>
